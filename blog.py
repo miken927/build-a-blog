@@ -23,8 +23,18 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 class MainBlog(webapp2.RequestHandler):
-    self.response.write('main blog here')
+    def get(self):
+        self.render("front.html")
 
+    def post(self):
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+
+    if subject and content:
+        self.write("thanks!")
+    else:
+        error = "We need both a subject and content!"
+        self.render("front.html", error = error)
 
 class NewPost(db.Model):
     subject = db.StringProperty(required = True)
