@@ -17,7 +17,6 @@
 import webapp2
 import os
 import jinja2
-
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -35,19 +34,29 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+class Post(db.Model):
+    subject = db.StringProperty(required = True)
+    content = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
 
 
 class MainHandler(Handler):
     def get(self):
-        self.response.write('Hello world!')
+        self.redirect("/blog")
 
 class MainBlog(Handler):
+    def render_posts(self, subject, content, error):
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY desc")
+
+        self.render("front.html", subject=subject, content=content, error=error)
+        
     def get(self):
         self.response.write('blog posts here')
 
+
 class NewPost(Handler):
-    def render_newpost(self, title="", content="", error=""):
-        self.render("newpost.html", title=title, content=content, error=error)
+    def render_newpost(self, subject="", content="", error=""):
+        self.render("newpost.html", subject=subject, content=content, error=error)
 
     def get(self):
         self.render_newpost()
@@ -57,10 +66,12 @@ class NewPost(Handler):
         content = self.request.get('content')
 
         if subject and content:
-            self.write("Thank you for your submission")
+            p = Post(subject = subject, content = content)
+            p.put()
+            self.redirect("/blog")
         else:
             error = "We need a subject and content!"
-            self.render_newpost(error = error)
+            self.render_newpost(subject, content, error)
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
