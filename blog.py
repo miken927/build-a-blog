@@ -24,7 +24,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainBlog(webapp2.RequestHandler):
     def get(self):
-        self.render("front.html")
+        self.render("newpost.html")
 
     def post(self):
         subject = self.request.get("subject")
