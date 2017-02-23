@@ -32,6 +32,7 @@ class Handler(webapp2.RequestHandler):
         return t.render(**params)
 
     def render(self, template, **kw):
+        t = jinja_env.get_template(template)
         self.write(self.render_str(template, **kw))
 
 class Post(db.Model):
@@ -45,13 +46,18 @@ class MainHandler(Handler):
         self.redirect("/blog")
 
 class MainBlog(Handler):
-    def render_posts(self, subject, content, error):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY desc")
+    #def render_posts(self, subject, content, error):
+    #   posts = db.GqlQuery("SELECT * FROM Post ORDER BY desc")
+    #   self.render("front.html", subject=subject, content=content, error=error, posts=posts)
 
-        self.render("front.html", subject=subject, content=content, error=error)
-        
     def get(self):
-        self.response.write('blog posts here')
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY desc")
+        #self.render("front.html", posts=posts)
+        t = jinja_env.get_template("front.html")
+        content = t.render(posts = posts)
+
+        self.response.write(content)
+
 
 
 class NewPost(Handler):
