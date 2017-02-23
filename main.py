@@ -51,11 +51,11 @@ class MainBlog(Handler):
     #   self.render("front.html", subject=subject, content=content, error=error, posts=posts)
 
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY desc")
+        posts = db.GqlQuery("SELECT * FROM Post")
         #self.render("front.html", posts=posts)
         t = jinja_env.get_template("front.html")
         content = t.render(posts = posts)
-
+        #self.response.write("posts")
         self.response.write(content)
 
 
