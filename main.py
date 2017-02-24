@@ -17,6 +17,7 @@
 import webapp2
 import os
 import jinja2
+import time
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -74,7 +75,7 @@ class NewPost(Handler):
         if subject and content:
             p = Post(subject = subject, content = content)
             p.put()
-            self.redirect("/blog")
+            self.redirect("/blog?timestamp=%d" %time.time())
         else:
             error = "We need a subject and content!"
             self.render_newpost(subject, content, error)
