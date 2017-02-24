@@ -51,7 +51,7 @@ class MainBlog(Handler):
     #   self.render("front.html", subject=subject, content=content, error=error, posts=posts)
 
     def get(self):
-        posts = db.GqlQuery("SELECT * FROM Post")
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
         #self.render("front.html", posts=posts)
         t = jinja_env.get_template("front.html")
         content = t.render(posts = posts)
@@ -79,9 +79,21 @@ class NewPost(Handler):
             error = "We need a subject and content!"
             self.render_newpost(subject, content, error)
 
+class DisplayPost(Handler):
+        def get(self, id):
+            post = Post.get_by_id(int(id))
+
+            if not post:
+                self.response.write("404 not found")
+                return
+            else:
+                self.render("permalink.html", post = post)
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/blog', MainBlog),
-    ('/newpost', NewPost)
+    ('/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', DisplayPost)
 
 ], debug=True)
